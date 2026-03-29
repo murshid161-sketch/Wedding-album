@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Murshid & Shibila — Wedding Album</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-light:#E8C96A;--gold-dark:#9A7A30;
+  --cream:#FAF7F2;--cream-dark:#F0EAE0;--cream-deep:#E8DDD0;
+  --dark:#1A1209;--dark2:#2C200F;--dark3:#3E2E18;
+  --text:#4A3728;--text-light:#7A6455;--text-muted:#A89282;
+  --white:#FFFFFF;--error:#C0392B;
+}
+html,body{height:100%;font-family:'Montserrat',sans-serif;background:var(--cream);overflow-x:hidden;color:var(--dark)}
+::-webkit-scrollbar{display:none}
+body{scrollbar-width:none}
+button{cursor:pointer;font-family:'Montserrat',sans-serif;border:none;background:none}
+input,textarea{font-family:'Montserrat',sans-serif}
+img{display:block;max-width:100%}
+
+/* LOADING */
+#loading-screen{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:20px}
+.load-ornament{width:60px;height:60px;position:relative}
+.load-ornament::before,.load-ornament::after{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent}
+.load-ornament::before{border-top-color:var(--gold);border-right-color:var(--gold);animation:spinL 1.2s linear infinite}
+.load-ornament::after{border-bottom-color:var(--gold-light);border-left-color:var(--gold-light);animation:spinL 0.8s linear infinite reverse;inset:8px}
+.load-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--gold)}
+.load-names{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold-light);letter-spacing:2px;text-align:center;line-height:1.4}
+.load-sub{font-size:9px;letter-spacing:4px;color:rgba(201,168,76,0.5);text-transform:uppercase}
+@keyframes spinL{to{transform:rotate(360deg)}}
+
+/* APP WRAPPER */
+#app{display:none;max-width:480px;margin:0 auto;min-height:100vh;position:relative}
+
+/* BOTTOM NAV */
+#bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--dark);border-top:1px solid rgba(201,168,76,0.15);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nav-btn{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 12px;opacity:0.38;transition:all 0.2s;position:relative;color:var(--cream)}
+.nav-btn.active{opacity:1;color:var(--gold-light)}
+.nav-btn.active::after{content:'';position:absolute;top:0;left:30%;right:30%;height:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:0 0 2px 2px}
+.nav-icon{width:24px;height:24px;display:block;flex-shrink:0}
+.nav-label{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:inherit;line-height:1}
+
+/* PAGES */
+.page{display:none;min-height:100vh;background:var(--cream);padding-bottom:68px}
+.page.active{display:block}
+
+/* TOP BAR */
+.top-bar{position:sticky;top:0;z-index:100;background:rgba(250,247,242,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.top-bar-logo{display:flex;flex-direction:column;align-items:center}
+.top-bar-names{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--dark);letter-spacing:0.5px}
+.top-bar-amp{color:var(--gold)}
+.top-bar-date{font-size:8px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-top:1px}
+.top-bar-right{display:flex;align-items:center;gap:10px}
+.avatar-btn{background:none;border:none;padding:0;width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);flex-shrink:0}
+.avatar-btn img{width:100%;height:100%;object-fit:cover}
+.notif-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* STORIES */
+#stories-row{background:var(--white);border-bottom:1px solid rgba(201,168,76,0.12);padding:12px 0}
+#stories-scroll{display:flex;gap:12px;padding:0 14px;overflow-x:auto;scrollbar-width:none}
+#stories-scroll::-webkit-scrollbar{display:none}
+.story-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.story-ring{width:62px;height:62px;border-radius:50%;padding:2.5px;flex-shrink:0}
+.story-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid var(--white)}
+.story-ring.gradient-1{background:linear-gradient(135deg,var(--gold-dark),var(--gold-light))}
+.story-ring.gradient-2{background:linear-gradient(135deg,#8B4513,var(--gold))}
+.story-ring.gradient-3{background:linear-gradient(135deg,var(--dark2),var(--gold-dark))}
+.story-ring.gradient-4{background:linear-gradient(135deg,#6B3A2A,#C9A84C)}
+.story-ring.add-story{background:var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
+.story-label{font-size:9px;font-weight:500;color:var(--text-light);max-width:62px;text-align:center;line-height:1.3;letter-spacing:0.3px}
+
+/* SECTION HEADERS */
+.section-header{padding:14px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--dark)}
+.section-ornament{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:10px;letter-spacing:1px}
+
+/* POST CARDS */
+.post-card{background:var(--white);margin-bottom:2px;border-bottom:6px solid var(--cream)}
+.post-header{display:flex;align-items:center;gap:10px;padding:10px 14px}
+.post-avatar{width:36px;height:36px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;flex-shrink:0;background:var(--cream-dark)}
+.post-avatar img{width:100%;height:100%;object-fit:cover}
+.post-meta-name{font-weight:600;font-size:12px;color:var(--dark);letter-spacing:0.3px}
+.post-meta-italic{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold-dark)}
+.post-meta-time{font-size:10px;color:var(--text-muted);margin-top:1px}
+.post-more{background:none;border:none;font-size:20px;color:var(--text-muted);margin-left:auto;padding:4px}
+
+/* CAROUSEL */
+.post-img-wrap{position:relative;user-select:none;-webkit-user-select:none;background:var(--cream-dark)}
+.post-img-wrap img{width:100%;object-fit:cover;display:block}
+/* ratio classes applied dynamically from first image */
+.post-img-wrap.ratio-square img{aspect-ratio:1/1}
+.post-img-wrap.ratio-portrait img{aspect-ratio:4/5}
+.post-img-wrap.ratio-landscape img{aspect-ratio:1.91/1}
+.post-img-wrap.ratio-loading{min-height:280px}
+.post-img-wrap.ratio-loading img{min-height:280px}
+.c-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(26,18,9,0.55);border:1px solid rgba(201,168,76,0.4);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--gold-light);font-size:16px;z-index:2;backdrop-filter:blur(4px)}
+.c-prev{left:10px}.c-next{right:10px}
+.c-count{position:absolute;top:12px;right:12px;background:rgba(26,18,9,0.6);border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--gold-light);font-weight:600;letter-spacing:1px}
+.c-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:4px}
+.dot{height:4px;border-radius:2px;transition:all 0.25s}
+.dot.on{width:20px;background:var(--gold)}.dot.off{width:4px;background:rgba(255,255,255,0.5)}
+.heart-anim{position:absolute;top:50%;left:50%;font-size:80px;transform:translate(-50%,-50%);pointer-events:none;animation:heartPop 0.85s ease forwards;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5))}
+@keyframes heartPop{0%{opacity:1;transform:translate(-50%,-50%) scale(0.2)}15%{transform:translate(-50%,-50%) scale(1.3)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+
+/* POST ACTIONS */
+.post-actions{padding:10px 14px 14px}
+.action-row{display:flex;align-items:center;gap:2px;margin-bottom:8px}
+.action-btn{background:none;border:none;font-size:24px;line-height:1;padding:6px;transition:transform 0.15s;display:flex;align-items:center;justify-content:center}
+.action-btn:active{transform:scale(0.82)}
+.action-btn.liked{animation:likePoP 0.3s ease}
+@keyframes likePoP{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.action-spacer{flex:1}
+.like-count{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:5px}
+.like-count span{color:var(--gold-dark)}
+.post-caption{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:3px}
+.post-caption strong{font-weight:600;color:var(--dark)}
+.post-song{font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.view-cmts-btn{background:none;border:none;padding:0;font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:500;letter-spacing:0.3px}
+.last-cmt{font-size:12px;color:var(--text);margin-top:5px;line-height:1.5}
+.post-time-label{font-size:9px;color:var(--text-muted);margin-top:5px;text-transform:uppercase;letter-spacing:1px}
+.admin-del-btn{background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);border-radius:8px;color:var(--error);font-size:11px;font-weight:600;padding:4px 10px;margin-top:8px;display:flex;align-items:center;gap:4px}
+
+/* GOLD DIVIDER */
+.gold-divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 16px;opacity:0.4}
+
+/* REELS PAGE */
+#reels-page{background:#0D0A06;padding-bottom:68px}
+#reels-topbar{position:sticky;top:0;z-index:100;background:rgba(13,10,6,0.9);backdrop-filter:blur(12px);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(201,168,76,0.15)}
+#reels-topbar .rt{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold-light)}
+.reel-card{position:relative;height:86vh;overflow:hidden;background:#0D0A06;margin-bottom:4px}
+.reel-card img{width:100%;height:100%;object-fit:cover;opacity:0.85}
+.reel-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.reel-play-btn{width:64px;height:64px;border-radius:50%;background:rgba(201,168,76,0.15);backdrop-filter:blur(8px);border:1.5px solid rgba(201,168,76,0.5);display:flex;align-items:center;justify-content:center;font-size:22px;padding-left:3px;color:var(--gold-light)}
+.reel-actions{position:absolute;right:14px;bottom:140px;display:flex;flex-direction:column;gap:20px;align-items:center}
+.reel-action{display:flex;flex-direction:column;align-items:center;gap:3px}
+.reel-action button{background:none;border:none;font-size:28px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 1px 6px rgba(0,0,0,0.7))}
+.reel-action span{color:rgba(250,247,242,0.9);font-size:11px;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,0.8);letter-spacing:0.5px}
+.reel-info{position:absolute;bottom:0;left:0;right:72px;padding:80px 16px 20px;background:linear-gradient(to top,rgba(13,10,6,0.85),transparent);pointer-events:none}
+.reel-uname{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--gold-light);margin-bottom:5px}
+.reel-cap{font-size:12px;color:rgba(250,247,242,0.9);line-height:1.6;margin-bottom:6px}
+.reel-song{font-size:10px;color:rgba(201,168,76,0.7);display:flex;align-items:center;gap:5px;letter-spacing:0.5px}
+.spin-music{display:inline-block;animation:spinL 4s linear infinite}
+.reel-del-wrap{position:absolute;top:14px;right:14px;z-index:10}
+.reel-del-btn{background:rgba(192,57,43,0.7);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:5px 10px}
+
+/* WALL PAGE */
+#wall-page{background:var(--cream);padding-bottom:68px}
+#wall-topbar{position:sticky;top:0;z-index:100;background:rgba(250,247,242,0.96);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+#wall-topbar-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--dark)}
+.wall-add-btn{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border:none;border-radius:20px;color:var(--dark);font-weight:700;font-size:11px;padding:7px 16px;letter-spacing:0.5px;display:flex;align-items:center;gap:5px}
+#wall-feed{padding-bottom:8px}
+.wall-card{background:var(--white);margin-bottom:2px;border-bottom:6px solid var(--cream)}
+.wall-card-header{display:flex;align-items:center;gap:10px;padding:10px 14px}
+.wall-guest-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--dark2),var(--gold-dark));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:var(--gold-light);flex-shrink:0;border:2px solid rgba(201,168,76,0.3)}
+.wall-card-img-wrap{position:relative;background:var(--cream-dark)}
+.wall-card-img-wrap img{width:100%;object-fit:cover;display:block}
+.wall-card-img-wrap.ratio-portrait img{aspect-ratio:4/5}
+.wall-card-img-wrap.ratio-landscape img{aspect-ratio:1.91/1}
+.wall-card-img-wrap.ratio-square img{aspect-ratio:1/1}
+.wall-card-img-wrap.ratio-loading{min-height:280px}
+.wall-card-img-wrap.ratio-loading img{min-height:280px}
+.wall-card-actions{padding:10px 14px 14px}
+.wall-empty{padding:80px 20px;text-align:center;color:var(--text-muted)}
+.wall-empty-txt{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--gold-dark);margin-bottom:6px;margin-top:12px}
+
+/* PROFILE PAGE */
+#profile-page{background:var(--cream);padding-bottom:68px}
+.prof-hero{background:linear-gradient(160deg,var(--dark) 0%,var(--dark2) 60%,var(--dark3) 100%);padding:30px 20px 24px;position:relative;overflow:hidden}
+.prof-hero::before{content:'♦';position:absolute;top:-20px;right:-20px;font-size:200px;color:rgba(201,168,76,0.03);pointer-events:none}
+.prof-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.4}
+.prof-av-wrap{width:88px;height:88px;border-radius:50%;padding:2.5px;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light));margin:0 auto 16px;cursor:pointer;position:relative}
+.prof-av-wrap img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--dark)}
+.prof-av-overlay{position:absolute;inset:0;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(26,18,9,0.5);opacity:0;transition:opacity 0.2s;font-size:18px;margin:2.5px}
+.prof-av-wrap:hover .prof-av-overlay,.prof-av-wrap:active .prof-av-overlay{opacity:1}
+.prof-couple{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:26px;color:var(--gold-light);text-align:center;margin-bottom:4px}
+.prof-amp{color:var(--gold-dark);margin:0 4px}
+.prof-date-loc{font-size:10px;letter-spacing:2px;color:rgba(201,168,76,0.55);text-align:center;text-transform:uppercase;margin-bottom:4px}
+.prof-bio{font-size:12px;color:rgba(250,247,242,0.7);text-align:center;line-height:1.7;margin-bottom:14px;max-width:320px;margin-left:auto;margin-right:auto;font-style:italic}
+.prof-meta{display:flex;flex-direction:column;gap:3px;align-items:center;margin-bottom:14px}
+.prof-meta-item{font-size:10px;color:rgba(201,168,76,0.6);letter-spacing:1px}
+.prof-stats{display:flex;justify-content:space-around;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);border-radius:12px;padding:14px;margin-bottom:14px}
+.stat{text-align:center}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-light);font-weight:600;line-height:1}
+.stat-lbl{font-size:9px;letter-spacing:1.5px;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-top:3px}
+.prof-btns{display:flex;gap:10px}
+.prof-btn{flex:1;border:1px solid rgba(201,168,76,0.35);border-radius:10px;color:var(--gold-light);font-size:11px;font-weight:600;padding:9px;letter-spacing:0.5px;background:rgba(201,168,76,0.07);transition:all 0.2s}
+.prof-btn:active{background:rgba(201,168,76,0.15)}
+
+/* PHOTO GRID */
+.pgrid-header{padding:16px 16px 10px;display:flex;align-items:center;gap:8px}
+.pgrid-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--dark)}
+.pgrid-line{flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0.4}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.pgrid-item{aspect-ratio:1;overflow:hidden;background:var(--cream-dark)}
+.pgrid-item img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
+.pgrid-item img:hover{transform:scale(1.04)}
+.pgrid-empty{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--text-muted)}
+
+/* STORY VIEWER */
+#sv{position:fixed;inset:0;background:#000;z-index:600;display:none;max-width:480px;margin:0 auto;overflow:hidden;touch-action:pan-y}
+#sv-slides{position:absolute;inset:0;display:flex;transition:none}
+.sv-slide{flex-shrink:0;width:100%;height:100%;position:relative}
+.sv-slide img{width:100%;height:100%;object-fit:cover;opacity:0.9}
+.sv-slide-emoji{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--dark),var(--dark2));font-size:80px}
+/* progress bars row */
+#sv-bars{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;gap:3px;padding:10px 10px 0}
+.sv-bar{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,0.3);overflow:hidden}
+.sv-bar-fill{height:100%;background:rgba(255,255,255,0.9);width:0;border-radius:2px}
+.sv-bar-fill.done{width:100%}
+.sv-bar-fill.active{animation:svBarAnim 5s linear forwards}
+@keyframes svBarAnim{from{width:0}to{width:100%}}
+/* header */
+#sv-head{position:absolute;top:18px;left:0;right:0;padding:0 12px;display:flex;align-items:center;gap:10px;z-index:9}
+#sv-head img{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(201,168,76,0.6);flex-shrink:0}
+.sv-hname{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:#fff}
+.sv-hsub{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:1px}
+#sv-close-btn{background:none;border:none;color:rgba(255,255,255,0.75);font-size:24px;margin-left:auto;line-height:1;padding:4px;flex-shrink:0}
+/* tap zones */
+#sv-tap-left{position:absolute;top:0;left:0;width:38%;height:100%;z-index:8;cursor:pointer}
+#sv-tap-right{position:absolute;top:0;right:0;width:38%;height:100%;z-index:8;cursor:pointer}
+/* bottom info */
+#sv-bot{position:absolute;bottom:0;left:0;right:0;padding:80px 20px 48px;text-align:center;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);pointer-events:none;z-index:7}
+.sv-bot-label{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold-light);margin-bottom:4px}
+.sv-bot-meta{font-size:10px;color:rgba(201,168,76,0.5);letter-spacing:2px;text-transform:uppercase}
+/* slide-in/out transitions */
+#sv-slides.sv-going-right{animation:svSlideRight 0.28s cubic-bezier(0.4,0,0.2,1) forwards}
+#sv-slides.sv-going-left{animation:svSlideLeft 0.28s cubic-bezier(0.4,0,0.2,1) forwards}
+@keyframes svSlideRight{from{transform:translateX(0)}to{transform:translateX(100%)}}
+@keyframes svSlideLeft{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+
+/* VIDEO MODAL */
+#vid-modal{position:fixed;inset:0;background:rgba(0,0,0,0.96);z-index:700;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;max-width:480px;margin:0 auto}
+#vid-modal iframe{width:100%;max-width:480px;height:65vh;border:none;border-radius:12px;background:#000}
+#vid-close-btn{position:absolute;top:16px;right:16px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.3);color:var(--gold-light);font-size:20px;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+#vid-hint{color:rgba(201,168,76,0.35);font-size:10px;margin-top:12px;letter-spacing:2px;text-transform:uppercase}
+
+/* FAB */
+#fab{position:fixed;bottom:80px;right:calc(50% - 226px);width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dark),var(--gold-light));border:none;font-size:24px;color:var(--dark);display:none;align-items:center;justify-content:center;z-index:150;box-shadow:0 4px 20px rgba(201,168,76,0.4);transition:all 0.2s}
+#fab:active{transform:scale(0.9)}
+
+/* OVERLAYS & MODALS */
+.overlay{position:fixed;inset:0;background:rgba(26,18,9,0.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;max-width:480px;margin:0 auto}
+.sheet{width:100%;background:var(--white);border-radius:22px 22px 0 0;max-height:92vh;overflow-y:auto;animation:slideUp 0.28s cubic-bezier(0.16,1,0.3,1)}
+.sheet-handle{display:flex;justify-content:center;padding:10px 0 2px}
+.sheet-handle-bar{width:36px;height:3px;border-radius:2px;background:var(--cream-deep)}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 14px;border-bottom:1px solid var(--cream-dark)}
+.sheet-header-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--dark)}
+.sheet-close{background:none;border:none;font-size:22px;color:var(--text-muted);line-height:1;padding:2px}
+.sheet-body{padding:16px 18px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;display:block}
+.form-input{width:100%;border:1px solid var(--cream-deep);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--dark);background:var(--cream);outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--gold)}
+textarea.form-input{resize:none;min-height:70px}
+.upload-zone{border:2px dashed var(--cream-deep);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--cream)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(201,168,76,0.04)}
+.upload-zone-icon{font-size:32px;margin-bottom:8px}
+.upload-zone-text{font-size:12px;color:var(--text-muted)}
+.upload-zone-text strong{color:var(--gold-dark)}
+.preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.preview-img{aspect-ratio:1;border-radius:8px;object-fit:cover;width:100%;background:var(--cream-dark)}
+.progress-bar-wrap{background:var(--cream-dark);border-radius:10px;height:6px;margin-top:10px;overflow:hidden;display:none}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold-light));border-radius:10px;transition:width 0.3s;width:0}
+.btn-primary{width:100%;background:linear-gradient(135deg,var(--gold-dark),var(--gold));border:none;border-radius:12px;color:var(--dark);font-weight:700;font-size:13px;padding:13px;letter-spacing:0.5px;margin-top:6px;transition:all 0.2s}
+.btn-primary:active{opacity:0.85}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+.btn-secondary{width:100%;background:none;border:1px solid var(--cream-deep);border-radius:12px;color:var(--text);font-weight:600;font-size:13px;padding:12px;margin-top:8px}
+
+/* COMMENTS MODAL */
+.clist{padding:12px 16px;min-height:60px;max-height:40vh;overflow-y:auto}
+.citem{display:flex;gap:10px;margin-bottom:14px}
+.cavatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--dark2),var(--dark3));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold-light);flex-shrink:0;border:1.5px solid rgba(201,168,76,0.3)}
+.ctext{font-size:12px;color:var(--text);line-height:1.55}
+.ctext strong{font-weight:600;color:var(--dark);margin-right:4px}
+.ctime{font-size:10px;color:var(--text-muted);margin-top:3px}
+.cempty{text-align:center;padding:30px 0;color:var(--text-muted);font-size:13px;font-style:italic}
+.c-input-area{padding:10px 14px 18px;border-top:1px solid var(--cream-dark);background:var(--cream);position:sticky;bottom:0}
+.c-input-row{display:flex;gap:8px;align-items:center}
+.c-name-input{border:1px solid var(--cream-deep);border-radius:20px;padding:9px 14px;font-size:12px;background:var(--white);outline:none;margin-bottom:8px;width:100%}
+.c-text-input{flex:1;border:1px solid var(--cream-deep);border-radius:20px;padding:9px 14px;font-size:12px;background:var(--white);outline:none}
+.c-send-btn{background:linear-gradient(135deg,var(--gold-dark),var(--gold));border:none;border-radius:20px;padding:9px 16px;color:var(--dark);font-weight:700;font-size:11px;flex-shrink:0}
+
+/* ADMIN MODAL */
+.admin-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);border-radius:20px;padding:3px 10px;font-size:9px;font-weight:600;letter-spacing:1px;color:var(--gold-dark);text-transform:uppercase}
+
+/* WALL UPLOAD */
+.wall-upload-modal .sheet-body{padding-bottom:30px}
+
+/* TOAST */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:var(--gold-light);font-size:12px;font-weight:600;padding:10px 20px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);z-index:2000;opacity:0;transition:all 0.3s;pointer-events:none;letter-spacing:0.5px;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* GOLD ORNAMENT */
+.ornament{color:var(--gold);opacity:0.5;font-size:14px;text-align:center;padding:8px;letter-spacing:4px}
+
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.4s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="load-ornament"><div class="load-inner">♦</div></div>
+  <div class="load-names">Murshid<br>&amp; Shibila</div>
+  <div class="load-sub">Loading your album</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- HOME PAGE -->
+  <div class="page active" id="home-page">
+    <div class="top-bar">
+      <button style="width:34px;height:34px;background:none;border:none;font-size:20px;color:var(--text-muted)" onclick="showAdminLogin()">☰</button>
+      <div class="top-bar-logo">
+        <div class="top-bar-names">Murshid <span class="top-bar-amp">&amp;</span> Shibila</div>
+        <div class="top-bar-date">November 12 · Shriyas Palace</div>
+      </div>
+      <button class="avatar-btn" onclick="goTo('profile')"><img id="top-av" src="" alt=""/></button>
+    </div>
+    <div id="stories-row"><div id="stories-scroll"></div></div>
+    <div id="feed"></div>
+  </div>
+
+  <!-- REELS PAGE -->
+  <div class="page" id="reels-page">
+    <div id="reels-topbar">
+      <span class="rt">Reels</span>
+      <div id="reels-admin-badge"></div>
+    </div>
+    <div id="reels-feed"></div>
+  </div>
+
+  <!-- WALL PAGE -->
+  <div class="page" id="wall-page">
+    <div id="wall-topbar">
+      <div style="width:34px"></div>
+      <div id="wall-topbar-title">Guest Wall</div>
+      <button class="wall-add-btn" onclick="openWallUpload()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add
+      </button>
+    </div>
+    <div id="wall-feed"></div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div class="page" id="profile-page">
+    <div class="prof-hero">
+      <div class="prof-av-wrap" onclick="adminTapAvatar()" id="prof-av-wrap">
+        <img id="prof-av" src="" alt="" onerror="this.style.background='#2C200F'"/>
+        <div class="prof-av-overlay">📷</div>
+      </div>
+      <div class="prof-couple">Murshid <span class="prof-amp">&amp;</span> Shibila</div>
+      <div class="prof-date-loc" id="prof-date-loc">November 12 · Shriyas Palace, Aloor</div>
+      <div class="prof-bio" id="prof-bio"></div>
+      <div class="prof-meta">
+        <div class="prof-meta-item" id="prof-photog"></div>
+      </div>
+      <div class="prof-stats">
+        <div class="stat"><div class="stat-val" id="sp">0</div><div class="stat-lbl">Posts</div></div>
+        <div class="stat"><div class="stat-val" id="sl">0</div><div class="stat-lbl">Likes</div></div>
+        <div class="stat"><div class="stat-val" id="sc">0</div><div class="stat-lbl">Comments</div></div>
+        <div class="stat"><div class="stat-val" id="sw">0</div><div class="stat-lbl">Wall</div></div>
+      </div>
+      <div class="prof-btns">
+        <button class="prof-btn" onclick="refreshAll()">↻ Refresh</button>
+        <button class="prof-btn" onclick="shareAlbum()">📤 Share</button>
+        <button class="prof-btn" id="edit-prof-btn" style="display:none" onclick="openEditProfile()">✏️ Edit</button>
+      </div>
+    </div>
+    <div class="pgrid-header">
+      <div class="pgrid-title">Memories</div>
+      <div class="pgrid-line"></div>
+    </div>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" id="nav-home" onclick="goTo('home')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span class="nav-label">Home</span>
+    </button>
+    <button class="nav-btn" id="nav-reels" onclick="goTo('reels')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><path d="M2 8h20M8 2v6M16 2v6"/><circle cx="12" cy="15" r="3"/><path d="M10.5 15l1.5-1 1.5 1"/></svg>
+      <span class="nav-label">Reels</span>
+    </button>
+    <button class="nav-btn" id="nav-wall" onclick="goTo('wall')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 015 5c0 2.5-1.5 4.5-3 6l-2 2-2-2c-1.5-1.5-3-3.5-3-6a5 5 0 015-5z"/><circle cx="12" cy="7" r="1.5" fill="currentColor" stroke="none"/><path d="M5 20c0-3 3-5 7-5s7 2 7 5"/></svg>
+      <span class="nav-label">Wall</span>
+    </button>
+    <button class="nav-btn" id="nav-profile" onclick="goTo('profile')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span class="nav-label">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- FAB -->
+<button id="fab" onclick="openAdminUpload()">＋</button>
+
+<!-- MODALS ROOT -->
+<div id="modal-root"></div>
+
+<!-- STORY VIEWER -->
+<div id="sv">
+  <div id="sv-bars"></div>
+  <div id="sv-head">
+    <img id="sv-av" src="" alt="" onerror="this.style.background='#2C200F'"/>
+    <div>
+      <div class="sv-hname">Murshid &amp; Shibila</div>
+      <div class="sv-hsub" id="sv-label-sub"></div>
+    </div>
+    <button id="sv-close-btn" onclick="closeSV()">✕</button>
+  </div>
+  <div id="sv-tap-left" onclick="svNav(-1)"></div>
+  <div id="sv-tap-right" onclick="svNav(1)"></div>
+  <div id="sv-slides"></div>
+  <div id="sv-bot">
+    <div class="sv-bot-label" id="sv-bot-label"></div>
+    <div class="sv-bot-meta">November 12 · Shriyas Palace, Aloor</div>
+  </div>
+</div>
+
+<!-- VIDEO MODAL -->
+<div id="vid-modal">
+  <button id="vid-close-btn" onclick="closeVid()">✕</button>
+  <iframe id="vid-frame" src="" allowfullscreen allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+  <div id="vid-hint">Tap ✕ to close</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ─── FIREBASE INIT ────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey:"AIzaSyC6PC66hCpxTXTDIWCMDpl-MMFisbHWGa8",
+  authDomain:"wedding-album-murshid-shibila.firebaseapp.com",
+  projectId:"wedding-album-murshid-shibila",
+  storageBucket:"wedding-album-murshid-shibila.firebasestorage.app",
+  messagingSenderId:"621379710275",
+  appId:"1:621379710275:web:cbf0861442676500a613f6"
+});
+var db = firebase.firestore();
+
+// ─── CONSTANTS ────────────────────────────────────────────────
+var ADMIN_PW = "@Qwe456uio";
+var CLOUD_NAME = "dormnrhdf";
+var UPLOAD_PRESET = "ml_default";
+var COUPLE = {bride:"Shibila",groom:"Murshid",date:"November 12",location:"Shriyas Palace, Aloor",photographer:"White Mirror Wedding"};
+
+// ─── STATE ───────────────────────────────────────────────────
+var POSTS = [], REELS = [], STORIES = [], WALL = [];
+var LIKES = {}, USER_LIKES = {}, COMMENTS_COUNT = {};
+var PROFILE = {};
+var isAdmin = sessionStorage.getItem("wa_admin") === "1";
+var userId = localStorage.getItem("wa_uid") || (function(){var id="u"+Date.now()+Math.random().toString(36).slice(2,7);localStorage.setItem("wa_uid",id);return id;})();
+var currentPage = "home";
+
+// ─── HELPERS ─────────────────────────────────────────────────
+function es(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function ta(ts){if(!ts)return "";var s=Math.floor((Date.now()-ts)/1000);if(s<60)return"just now";if(s<3600)return Math.floor(s/60)+"m ago";if(s<86400)return Math.floor(s/3600)+"h ago";return Math.floor(s/86400)+"d ago";}
+function toast(msg,dur){var el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(function(){el.classList.remove("show");},dur||2200);}
+function $id(id){return document.getElementById(id);}
+function cpHtml(){return "Murshid <span style='color:var(--gold)'>&#x26;amp;</span> Shibila";}
+
+// ─── NAVIGATION ──────────────────────────────────────────────
+function goTo(pg){
+  currentPage = pg;
+  document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".nav-btn").forEach(function(b){b.classList.remove("active");});
+  $id(pg+"-page").classList.add("active");
+  $id("nav-"+pg).classList.add("active");
+  // FAB visibility
+  var fab = $id("fab");
+  if(isAdmin && (pg==="home"||pg==="reels")){fab.style.display="flex";}
+  else{fab.style.display="none";}
+  if(pg==="home")renderFeed();
+  if(pg==="reels")renderReels();
+  if(pg==="wall")renderWall();
+  if(pg==="profile")renderProfile();
+}
+
+// ─── IMAGE COMPRESSION ───────────────────────────────────────
+// Smart compress: keeps full resolution up to MAX_PX on longest side,
+// then encodes at high quality. Only kicks in if file is large.
+var MAX_PX = 2048;      // max dimension — enough for any phone screen
+var MAX_MB = 4;         // compress if original exceeds this
+var QUALITY = 0.92;     // JPEG quality — visually lossless on mobile
+
+function compressImage(file){
+  return new Promise(function(resolve){
+    // Skip compression for small files — send as-is
+    if(file.size <= MAX_MB * 1024 * 1024){resolve(file);return;}
+
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var W = img.naturalWidth, H = img.naturalHeight;
+        var scale = 1;
+
+        // Only downscale if the image is larger than MAX_PX on longest side
+        if(W > MAX_PX || H > MAX_PX){
+          scale = Math.min(MAX_PX / W, MAX_PX / H);
+        }
+
+        var cw = Math.round(W * scale);
+        var ch = Math.round(H * scale);
+
+        var canvas = document.createElement("canvas");
+        canvas.width = cw;
+        canvas.height = ch;
+        var ctx = canvas.getContext("2d");
+
+        // Smooth scaling for downscaling
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, cw, ch);
+
+        canvas.toBlob(function(blob){
+          if(!blob){resolve(file);return;}
+          // If compression made it larger somehow, use original
+          if(blob.size >= file.size){resolve(file);return;}
+          // Return as a File with same name
+          var compressed = new File([blob], file.name, {type:"image/jpeg",lastModified:Date.now()});
+          console.log("Compressed: "+Math.round(file.size/1024)+"KB → "+Math.round(blob.size/1024)+"KB ("+Math.round(blob.size/file.size*100)+"%)");
+          resolve(compressed);
+        }, "image/jpeg", QUALITY);
+      };
+      img.onerror = function(){resolve(file);};
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){resolve(file);};
+    reader.readAsDataURL(file);
+  });
+}
+
+// ─── CLOUDINARY UPLOAD ───────────────────────────────────────
+function cloudUpload(file, isVideo, onProgress){
+  // For images: compress first, then upload
+  var prepareFile = isVideo ? Promise.resolve(file) : compressImage(file);
+
+  return prepareFile.then(function(readyFile){
+    return new Promise(function(resolve,reject){
+      var type = isVideo ? "video" : "image";
+      var url = "https://api.cloudinary.com/v1_1/"+CLOUD_NAME+"/"+type+"/upload";
+      var fd = new FormData();
+      fd.append("file", readyFile);
+      fd.append("upload_preset", UPLOAD_PRESET);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", url);
+      xhr.upload.onprogress = function(e){
+        if(e.lengthComputable && onProgress)onProgress(Math.round(e.loaded/e.total*100));
+      };
+      xhr.onload = function(){
+        if(xhr.status===200){
+          try{resolve(JSON.parse(xhr.responseText));}
+          catch(e){reject(e);}
+        } else {reject(new Error("Upload failed: "+xhr.status));}
+      };
+      xhr.onerror = function(){reject(new Error("Network error"));};
+      xhr.send(fd);
+    });
+  });
+}
+
+function extractVideoThumb(file){
+  return new Promise(function(resolve){
+    var video = document.createElement("video");
+    video.preload = "metadata";
+    var url = URL.createObjectURL(file);
+    video.src = url;
+    video.muted = true;
+    video.playsInline = true;
+    video.currentTime = 1;
+    video.onseeked = function(){
+      var canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 360;
+      canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+      canvas.toBlob(function(blob){URL.revokeObjectURL(url);resolve(blob);}, "image/jpeg", 0.8);
+    };
+    video.onerror = function(){URL.revokeObjectURL(url);resolve(null);};
+  });
+}
+
+// ─── LOAD DATA ───────────────────────────────────────────────
+function loadProfile(){
+  db.collection("config").doc("profile").get().then(function(doc){
+    if(doc.exists){
+      PROFILE = doc.data();
+      updateProfileUI();
+    }
+  }).catch(function(){});
+}
+
+function fetchPosts(){
+  db.collection("posts").orderBy("createdAt","desc").limit(30).get().then(function(snap){
+    POSTS = [];
+    snap.forEach(function(doc){POSTS.push({id:doc.id,...doc.data()});});
+    // Pre-detect ratio for each post's first image
+    POSTS.forEach(function(p){
+      var firstImg = (p.images||[])[0];
+      if(firstImg && !postRatios[p.id]){
+        detectAndApplyRatio(p.id, firstImg);
+      }
+    });
+    if(currentPage==="home")renderFeed();
+    renderProfileGrid();
+    updateStats();
+  }).catch(function(e){console.warn("posts",e);});
+}
+
+function fetchReels(){
+  db.collection("reels").orderBy("createdAt","desc").limit(20).get().then(function(snap){
+    REELS = [];
+    snap.forEach(function(doc){REELS.push({id:doc.id,...doc.data()});});
+    if(currentPage==="reels")renderReels();
+    updateStats();
+  }).catch(function(e){console.warn("reels",e);});
+}
+
+function fetchStories(){
+  db.collection("stories").orderBy("createdAt","asc").get().then(function(snap){
+    STORIES = [];
+    snap.forEach(function(doc){STORIES.push({id:doc.id,...doc.data()});});
+    renderStories();
+  }).catch(function(e){renderStories();});
+}
+
+function fetchWall(){
+  db.collection("guestWall").orderBy("createdAt","desc").limit(50).get().then(function(snap){
+    WALL = [];
+    snap.forEach(function(doc){WALL.push({id:doc.id,...doc.data()});});
+    if(currentPage==="wall")renderWall();
+    updateStats();
+  }).catch(function(){});
+}
+
+function loadLikes(){
+  // Load global likes
+  var ids = POSTS.map(function(p){return p.id;}).concat(REELS.map(function(r){return r.id;})).concat(WALL.map(function(w){return w.id;}));
+  ids.forEach(function(id){
+    db.collection("likes").doc(id).get().then(function(doc){
+      if(doc.exists)LIKES[id] = doc.data().count || 0;
+    }).catch(function(){});
+  });
+  // Load user likes from ul_{uid}
+  db.collection("ul_"+userId).get().then(function(snap){
+    snap.forEach(function(doc){USER_LIKES[doc.id]=true;});
+  }).catch(function(){});
+}
+
+function loadCommentCounts(collection, items){
+  items.forEach(function(item){
+    db.collection(collection).doc(item.id).collection("comments").get().then(function(snap){
+      COMMENTS_COUNT[item.id] = snap.size;
+      updateStats();
+    }).catch(function(){});
+  });
+}
+
+function refreshAll(){
+  toast("Refreshing...");
+  fetchPosts();fetchReels();fetchStories();fetchWall();loadProfile();
+  setTimeout(loadLikes, 1200);
+}
+
+// ─── LIKES ───────────────────────────────────────────────────
+function tgLike(id, collection){
+  var wasLiked = USER_LIKES[id];
+  USER_LIKES[id] = !wasLiked;
+  LIKES[id] = Math.max(0,(LIKES[id]||0)+(wasLiked?-1:1));
+  // Firestore update
+  db.collection("likes").doc(id).set({count: firebase.firestore.FieldValue.increment(wasLiked?-1:1)},{merge:true}).catch(function(){});
+  if(wasLiked){
+    db.collection("ul_"+userId).doc(id).delete().catch(function(){});
+  } else {
+    db.collection("ul_"+userId).doc(id).set({liked:true}).catch(function(){});
+  }
+  // Re-render
+  if(collection==="posts")renderFeed();
+  else if(collection==="reels")renderReels();
+  else if(collection==="guestWall")renderWall();
+}
+
+// ─── STORIES ─────────────────────────────────────────────────
+// ─── STORIES RENDER ──────────────────────────────────────────
+var gradients = [
+  ["#9A7A30","#E8C96A"],["#6B3A2A","#C9A84C"],
+  ["#1A1209","#3E2E18"],["#2C200F","#9A7A30"],
+  ["#4A2C10","#C9A84C"],["#7A5C30","#E8C96A"]
+];
+var DEFAULT_STORIES = [
+  {label:"Ceremony",emoji:"💍"},
+  {label:"Reception",emoji:"🎉"},
+  {label:"Couple",emoji:"💑"},
+  {label:"Moments",emoji:"✨"},
+];
+
+function renderStories(){
+  var h = "";
+  if(isAdmin){
+    h += '<div class="story-item" onclick="openStoryUpload()"><div class="story-ring gradient-3" style="display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer">＋</div><div class="story-label">Add Story</div></div>';
+  }
+  var list = STORIES.length>0 ? STORIES : DEFAULT_STORIES;
+  list.forEach(function(s,i){
+    var g = gradients[i%gradients.length];
+    h += '<div class="story-item" onclick="openStory('+i+')">'
+      +'<div class="story-ring" style="background:linear-gradient(135deg,'+g[0]+','+g[1]+')">'
+      +(s.imageUrl?'<img src="'+es(s.imageUrl)+'" onerror="this.style.opacity=0"/>':'<span style="font-size:22px;display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--gold-light)">'+(s.emoji||"✨")+'</span>')
+      +'</div><div class="story-label">'+es(s.label||"Story")+'</div></div>';
+  });
+  $id("stories-scroll").innerHTML = h;
+}
+
+// ─── STORY VIEWER (Instagram-style) ──────────────────────────
+var svIndex = 0;      // current story index
+var svTimer = null;
+var svPaused = false;
+var svTouchStartX = 0;
+var svTouchStartY = 0;
+var svTouchStartTime = 0;
+var svAllStories = []; // merged real + default stories
+
+function buildSvStories(){
+  if(STORIES.length>0){
+    svAllStories = STORIES.map(function(s){return{label:s.label||"Story",imageUrl:s.imageUrl||"",emoji:s.emoji||"✨"};});
+  } else {
+    svAllStories = DEFAULT_STORIES.map(function(s){return{label:s.label,imageUrl:"",emoji:s.emoji};});
+  }
+}
+
+function openStory(i){
+  buildSvStories();
+  svIndex = i;
+  $id("sv-av").src = PROFILE.avatarUrl||"";
+  $id("sv").style.display = "block";
+  document.body.style.overflow = "hidden";
+  svRender(false);
+  svAttachTouch();
+}
+
+function openDefaultStory(label, emoji){
+  buildSvStories();
+  var idx = DEFAULT_STORIES.findIndex(function(s){return s.label===label;});
+  svIndex = idx>=0 ? idx : 0;
+  $id("sv-av").src = PROFILE.avatarUrl||"";
+  $id("sv").style.display = "block";
+  document.body.style.overflow = "hidden";
+  svRender(false);
+  svAttachTouch();
+}
+
+function svRender(animDir){
+  // animDir: 0=none, 1=coming from right (going forward), -1=coming from left (going back)
+  clearTimeout(svTimer);
+  var stories = svAllStories;
+  var s = stories[svIndex];
+  if(!s){closeSV();return;}
+
+  // Build progress bars
+  var barsHtml = "";
+  for(var i=0;i<stories.length;i++){
+    var cls = i<svIndex?"done":i===svIndex?"active":"";
+    barsHtml += '<div class="sv-bar"><div class="sv-bar-fill '+cls+'" id="svb-'+i+'"></div></div>';
+  }
+  $id("sv-bars").innerHTML = barsHtml;
+
+  // Build slide content with animation
+  var slideHtml = '<div class="sv-slide">';
+  if(s.imageUrl){
+    slideHtml += '<img src="'+es(s.imageUrl)+'" onerror="this.style.display=\'none\'"/>';
+  } else {
+    slideHtml += '<div class="sv-slide-emoji">'+s.emoji+'</div>';
+  }
+  slideHtml += '</div>';
+
+  var slidesEl = $id("sv-slides");
+  slidesEl.innerHTML = slideHtml;
+
+  // Animate entrance
+  if(animDir===1){
+    // Coming from right: slide in from right
+    slidesEl.style.transform = "translateX(100%)";
+    slidesEl.style.transition = "none";
+    slidesEl.offsetHeight; // force reflow
+    slidesEl.style.transition = "transform 0.28s cubic-bezier(0.4,0,0.2,1)";
+    slidesEl.style.transform = "translateX(0)";
+  } else if(animDir===-1){
+    // Coming from left: slide in from left
+    slidesEl.style.transform = "translateX(-100%)";
+    slidesEl.style.transition = "none";
+    slidesEl.offsetHeight;
+    slidesEl.style.transition = "transform 0.28s cubic-bezier(0.4,0,0.2,1)";
+    slidesEl.style.transform = "translateX(0)";
+  } else {
+    slidesEl.style.transform = "translateX(0)";
+    slidesEl.style.transition = "none";
+  }
+
+  // Header info
+  $id("sv-label-sub").textContent = s.label;
+  $id("sv-bot-label").textContent = s.label;
+
+  // Auto-advance after 5s
+  svTimer = setTimeout(function(){svNav(1);}, 5000);
+}
+
+function svNav(dir){
+  var stories = svAllStories;
+  var next = svIndex + dir;
+  if(next < 0){closeSV();return;}
+  if(next >= stories.length){closeSV();return;}
+  svIndex = next;
+  svRender(dir); // pass direction for animation
+}
+
+function closeSV(){
+  clearTimeout(svTimer);
+  $id("sv").style.display = "none";
+  document.body.style.overflow = "";
+  svDetachTouch();
+}
+
+// Touch handling for swipe & hold-to-pause
+function svAttachTouch(){
+  var el = $id("sv");
+  el.addEventListener("touchstart", svTouchStart, {passive:true});
+  el.addEventListener("touchend", svTouchEnd, {passive:true});
+  el.addEventListener("touchmove", svTouchMove, {passive:true});
+  el.addEventListener("mousedown", svMouseDown);
+  el.addEventListener("mouseup", svMouseUp);
+}
+function svDetachTouch(){
+  var el = $id("sv");
+  el.removeEventListener("touchstart", svTouchStart);
+  el.removeEventListener("touchend", svTouchEnd);
+  el.removeEventListener("touchmove", svTouchMove);
+  el.removeEventListener("mousedown", svMouseDown);
+  el.removeEventListener("mouseup", svMouseUp);
+}
+
+function svTouchStart(e){
+  svTouchStartX = e.touches[0].clientX;
+  svTouchStartY = e.touches[0].clientY;
+  svTouchStartTime = Date.now();
+  // Hold to pause
+  svPaused = true;
+  clearTimeout(svTimer);
+  var fill = document.querySelector("#sv-bars .sv-bar-fill.active");
+  if(fill) fill.style.animationPlayState = "paused";
+}
+function svTouchMove(e){
+  // keep paused during hold
+}
+function svTouchEnd(e){
+  var dx = e.changedTouches[0].clientX - svTouchStartX;
+  var dy = e.changedTouches[0].clientY - svTouchStartY;
+  var dt = Date.now() - svTouchStartTime;
+  svPaused = false;
+
+  // Resume bar animation
+  var fill = document.querySelector("#sv-bars .sv-bar-fill.active");
+  if(fill) fill.style.animationPlayState = "running";
+
+  // Detect horizontal swipe (more horizontal than vertical, > 40px, fast)
+  if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40 && dt < 400){
+    if(dx < 0){
+      // Swipe left → next story
+      svNav(1);
+    } else {
+      // Swipe right → previous story
+      svNav(-1);
+    }
+    return;
+  }
+  // Short tap (no swipe): tap zones handle nav, so resume timer
+  if(dt < 350 && Math.abs(dx) < 10 && Math.abs(dy) < 10){
+    // Nav handled by tap zone divs
+    return;
+  }
+  // Long hold released: resume
+  svTimer = setTimeout(function(){svNav(1);}, 5000 - (Date.now() - svTouchStartTime));
+}
+
+function svMouseDown(e){
+  // Only for tap-zone clicks, hold to pause on desktop
+  if(e.target.id === "sv-tap-left" || e.target.id === "sv-tap-right") return;
+  svPaused = true;
+  clearTimeout(svTimer);
+  var fill = document.querySelector("#sv-bars .sv-bar-fill.active");
+  if(fill) fill.style.animationPlayState = "paused";
+}
+function svMouseUp(){
+  if(!svPaused) return;
+  svPaused = false;
+  var fill = document.querySelector("#sv-bars .sv-bar-fill.active");
+  if(fill) fill.style.animationPlayState = "running";
+  svTimer = setTimeout(function(){svNav(1);}, 3000);
+}
+
+// ─── FEED ─────────────────────────────────────────────────────
+var carouselIdx = {};
+var postRatios = {}; // cached ratio class per post id
+
+function getRatioClass(w, h){
+  var r = w / h;
+  if(r > 1.2) return "ratio-landscape";   // wider than tall → landscape
+  if(r < 0.9) return "ratio-portrait";    // taller than wide → portrait
+  return "ratio-square";                  // roughly square
+}
+
+function detectAndApplyRatio(postId, imgUrl){
+  // Already detected
+  if(postRatios[postId] && postRatios[postId] !== "ratio-loading") return;
+  postRatios[postId] = "ratio-loading";
+  var img = new Image();
+  img.onload = function(){
+    var cls = getRatioClass(img.naturalWidth, img.naturalHeight);
+    postRatios[postId] = cls;
+    // Apply to the rendered wrap if it exists
+    var wrap = document.querySelector("#pc-"+postId+" .post-img-wrap");
+    if(wrap){
+      wrap.classList.remove("ratio-loading","ratio-square","ratio-portrait","ratio-landscape");
+      wrap.classList.add(cls);
+    }
+  };
+  img.onerror = function(){
+    postRatios[postId] = "ratio-square";
+  };
+  img.src = imgUrl;
+}
+
+function renderFeed(){
+  updateTB();
+  var el = $id("feed");
+  if(!POSTS.length){
+    el.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--text-muted)">'
+      +'<div style="font-size:48px;margin-bottom:12px">📸</div>'
+      +'<div style="font-family:Cormorant Garamond,serif;font-style:italic;font-size:20px;color:var(--gold-dark);margin-bottom:6px">No memories yet</div>'
+      +(isAdmin?'<div style="font-size:12px">Tap + to upload your first photo</div>':'<div style="font-size:12px">Photos will appear here soon</div>')
+      +'</div>';
+    return;
+  }
+  el.innerHTML = '<div class="ornament">♦ &nbsp; ♦ &nbsp; ♦</div>' + POSTS.map(function(p){return mkPost(p);}).join('<div class="gold-divider"></div>');
+}
+
+function mkPost(p){
+  var ci = carouselIdx[p.id]||0;
+  var imgs = p.images||[];
+  var src = imgs[ci]||"";
+  var firstSrc = imgs[0]||"";
+  var lk = LIKES[p.id]||0, liked = USER_LIKES[p.id]?true:false;
+  var cc = COMMENTS_COUNT[p.id]||0;
+  var ratioClass = postRatios[p.id] || "ratio-loading";
+  var imgH = "";
+  if(src){
+    imgH = '<div class="post-img-wrap '+ratioClass+'" ondblclick="dtap(\''+p.id+'\')">'
+      +'<img src="'+es(src)+'" loading="lazy" onerror="this.parentNode.style.background=\'var(--cream-dark)\'"/>';
+    if(imgs.length>1){
+      imgH += '<div class="c-count">'+(ci+1)+"/"+imgs.length+"</div>";
+      imgH += '<div class="c-dots">';
+      for(var i=0;i<imgs.length;i++)imgH+='<div class="dot '+(i===ci?"on":"off")+'"></div>';
+      imgH += '</div>';
+      if(ci>0)imgH+='<button class="c-btn c-prev" onclick="slidePost(\''+p.id+'\',-1)">‹</button>';
+      if(ci<imgs.length-1)imgH+='<button class="c-btn c-next" onclick="slidePost(\''+p.id+'\',1)">›</button>';
+    }
+    imgH += '<span id="hrt-'+p.id+'"></span></div>';
+    // Trigger ratio detection if not yet known
+    if(!postRatios[p.id] || postRatios[p.id]==="ratio-loading"){
+      detectAndApplyRatio(p.id, firstSrc);
+    }
+  }
+  var tsMs = p.createdAt && p.createdAt.toMillis ? p.createdAt.toMillis() : (p.createdAt||Date.now());
+  return '<div class="post-card fade-in" id="pc-'+p.id+'">'
+    +'<div class="post-header">'
+    +'<div class="post-avatar"><img src="'+es(PROFILE.avatarUrl||"")+'" onerror="this.style.background=\'var(--cream-dark)\'"/></div>'
+    +'<div style="flex:1"><div class="post-meta-name"><span class="post-meta-italic">Murshid &amp; Shibila</span></div><div class="post-meta-time">'+ta(tsMs)+'</div></div>'
+    +(isAdmin?'<button class="post-more" onclick="deletePost(\''+p.id+'\')">🗑</button>':'')
+    +'</div>'
+    +imgH
+    +'<div class="post-actions">'
+    +'<div class="action-row">'
+    +'<button class="action-btn'+(liked?" liked":"") +'" onclick="tgLike(\''+p.id+'\',\'posts\')" style="color:'+(liked?"#e0245e":"var(--text)")+'"><svg width="26" height="26" viewBox="0 0 24 24" fill="'+(liked?"#e0245e":"none")+'" stroke="'+(liked?"#e0245e":"currentColor")+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button>'
+    +'<button class="action-btn" onclick="openComments(\''+p.id+'\',\'posts\')" style="color:var(--text)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>'
+    +'<button class="action-btn" onclick="shareAlbum()" style="color:var(--text)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>'
+    +'</div>'
+    +(lk?'<div class="like-count"><span>'+lk.toLocaleString()+"</span> "+(lk===1?"like":"likes")+"</div>":"")
+    +'<div class="post-caption"><strong>Murshid &amp; Shibila</strong> '+es(p.caption||"")+'</div>'
+    +(p.song?'<div class="post-song">🎵 '+es(p.song)+'</div>':"")
+    +(cc?'<button class="view-cmts-btn" onclick="openComments(\''+p.id+'\',\'posts\')">View all '+cc+' comment'+(cc===1?"":"s")+'</button>':"")
+    +'<div class="post-time-label">'+ta(tsMs)+'</div>'
+    +"</div></div>";
+}
+
+function slidePost(id,dir){
+  var p = POSTS.find(function(x){return x.id===id;});if(!p)return;
+  carouselIdx[id] = Math.max(0,Math.min((carouselIdx[id]||0)+dir,(p.images||[]).length-1));
+  var el = $id("pc-"+id); if(el)el.outerHTML = mkPost(p);
+}
+function dtap(id){
+  if(!USER_LIKES[id])tgLike(id,"posts");
+  var el = $id("hrt-"+id);
+  if(el){el.innerHTML='<div class="heart-anim">❤️</div>';setTimeout(function(){if(el)el.innerHTML="";},900);}
+}
+
+// ─── REELS ───────────────────────────────────────────────────
+function renderReels(){
+  var el = $id("reels-feed");
+  $id("reels-admin-badge").innerHTML = isAdmin?'<div class="admin-badge">👑 Admin</div>':"";
+  if(!REELS.length){
+    el.innerHTML='<div style="text-align:center;padding:80px 20px;color:rgba(201,168,76,0.4)">'
+      +'<div style="font-size:48px;margin-bottom:12px">🎬</div>'
+      +'<div style="font-family:Cormorant Garamond,serif;font-style:italic;font-size:20px;margin-bottom:6px">No reels yet</div>'
+      +(isAdmin?'<div style="font-size:12px">Tap + to upload a reel</div>':'')
+      +'</div>';
+    return;
+  }
+  el.innerHTML = REELS.map(function(r){
+    var lk = LIKES[r.id]||0, liked = USER_LIKES[r.id]?true:false;
+    var cc = COMMENTS_COUNT[r.id]||0;
+    var tsMs = r.createdAt && r.createdAt.toMillis ? r.createdAt.toMillis() : (r.createdAt||Date.now());
+    return '<div class="reel-card">'
+      +(r.thumbUrl?'<img src="'+es(r.thumbUrl)+'" loading="lazy"/>':'<div style="width:100%;height:100%;background:linear-gradient(135deg,var(--dark),var(--dark2));display:flex;align-items:center;justify-content:center;font-size:60px">🎬</div>')
+      +'<div class="reel-center" onclick="playVid(\''+es(r.videoUrl||"")+'\')"><div class="reel-play-btn"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>'
+      +'<span id="hrtr-'+r.id+'"></span>'
+      +(isAdmin?'<div class="reel-del-wrap"><button class="reel-del-btn" onclick="deleteReel(\''+r.id+'\')">🗑 Delete</button></div>':"")
+      +'<div class="reel-actions">'
+      +'<div class="reel-action"><button onclick="tgLikeReel(\''+r.id+'\')" style="color:'+(liked?"#e0245e":"#fff")+'"><svg width="28" height="28" viewBox="0 0 24 24" fill="'+(liked?"#e0245e":"none")+'" stroke="'+(liked?"#e0245e":"#fff")+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button>'+(lk?"<span>"+lk+"</span>":"")+"</div>"
+      +'<div class="reel-action"><button onclick="openComments(\''+r.id+'\',\'reels\')" style="color:#fff"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>'+(cc?"<span>"+cc+"</span>":"")+"</div>"
+      +'<div class="reel-action"><button onclick="shareAlbum()" style="color:#fff"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>'
+      +'</div>'
+      +'<div class="reel-info">'
+      +'<div class="reel-uname">Murshid &amp; Shibila</div>'
+      +'<div class="reel-cap">'+es(r.caption||"")+'</div>'
+      +(r.song?'<div class="reel-song"><span class="spin-music">🎵</span> '+es(r.song)+'</div>':"")
+      +'</div></div>';
+  }).join("");
+}
+
+function tgLikeReel(id){
+  var wasLiked = USER_LIKES[id];
+  USER_LIKES[id] = !wasLiked;
+  LIKES[id] = Math.max(0,(LIKES[id]||0)+(wasLiked?-1:1));
+  db.collection("likes").doc(id).set({count:firebase.firestore.FieldValue.increment(wasLiked?-1:1)},{merge:true}).catch(function(){});
+  if(wasLiked){db.collection("ul_"+userId).doc(id).delete().catch(function(){});}
+  else{db.collection("ul_"+userId).doc(id).set({liked:true}).catch(function(){});}
+  renderReels();
+}
+
+// ─── VIDEO PLAYER ────────────────────────────────────────────
+function playVid(url){
+  if(!url){toast("Video not available");return;}
+  // Try to embed direct Cloudinary or Google Drive
+  var embedUrl = url;
+  if(url.includes("drive.google.com")){
+    var m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m)embedUrl = "https://drive.google.com/file/d/"+m[1]+"/preview";
+  }
+  $id("vid-frame").src = embedUrl;
+  $id("vid-modal").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeVid(){$id("vid-frame").src="";$id("vid-modal").style.display="none";document.body.style.overflow="";}
+
+// ─── WALL ────────────────────────────────────────────────────
+var wallRatios = {};
+
+function detectWallRatio(id, imgUrl){
+  if(wallRatios[id] && wallRatios[id] !== "ratio-loading") return;
+  wallRatios[id] = "ratio-loading";
+  var img = new Image();
+  img.onload = function(){
+    var cls = getRatioClass(img.naturalWidth, img.naturalHeight);
+    wallRatios[id] = cls;
+    var wrap = document.querySelector("#wc-"+id+" .wall-card-img-wrap");
+    if(wrap){
+      wrap.classList.remove("ratio-loading","ratio-square","ratio-portrait","ratio-landscape");
+      wrap.classList.add(cls);
+    }
+  };
+  img.onerror = function(){ wallRatios[id] = "ratio-square"; };
+  img.src = imgUrl;
+}
+
+function renderWall(){
+  var el = $id("wall-feed");
+  if(!WALL.length){
+    el.innerHTML='<div class="wall-empty">'
+      +'<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--cream-deep)" stroke-width="1.2" style="margin:0 auto"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="var(--cream-deep)" stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>'
+      +'<div class="wall-empty-txt">No memories yet</div>'
+      +'<div style="font-size:12px;margin-bottom:18px">Be the first to share a photo!</div>'
+      +'<button class="wall-add-btn" style="margin:0 auto" onclick="openWallUpload()">'
+      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+      +' Add Your Photo</button>'
+      +'</div>';
+    return;
+  }
+  el.innerHTML = '<div class="ornament">♦ &nbsp; ♦ &nbsp; ♦</div>'
+    + WALL.map(function(w){ return mkWallCard(w); }).join('<div class="gold-divider"></div>');
+  // detect ratios
+  WALL.forEach(function(w){
+    if(w.imageUrl && !wallRatios[w.id]) detectWallRatio(w.id, w.imageUrl);
+  });
+}
+
+function mkWallCard(w){
+  var lk = LIKES[w.id]||0, liked = USER_LIKES[w.id]?true:false;
+  var cc = COMMENTS_COUNT[w.id]||0;
+  var initial = (w.guestName||"G")[0].toUpperCase();
+  var ratioClass = wallRatios[w.id] || "ratio-loading";
+  var tsMs = w.createdAt && w.createdAt.toMillis ? w.createdAt.toMillis() : Date.now();
+  return '<div class="wall-card fade-in" id="wc-'+w.id+'">'
+    // Header
+    +'<div class="wall-card-header">'
+    +'<div class="wall-guest-avatar">'+es(initial)+'</div>'
+    +'<div style="flex:1">'
+    +'<div style="font-weight:600;font-size:13px;color:var(--dark)">'+es(w.guestName||"Guest")+'</div>'
+    +'<div style="font-size:10px;color:var(--text-muted);margin-top:1px">'+ta(tsMs)+'</div>'
+    +'</div>'
+    +(isAdmin?'<button class="post-more" onclick="deleteWall(\''+w.id+'\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>':"")
+    +'</div>'
+    // Image
+    +(w.imageUrl
+      ?'<div class="wall-card-img-wrap '+ratioClass+'">'
+        +'<img src="'+es(w.imageUrl)+'" loading="lazy" onerror="this.parentNode.style.background=\'var(--cream-dark)\'"/>'
+        +'<span id="whrt-'+w.id+'"></span>'
+        +'</div>'
+      :"")
+    // Actions
+    +'<div class="wall-card-actions">'
+    +'<div class="action-row">'
+    +'<button class="action-btn" onclick="tgWallLike(\''+w.id+'\')" ondblclick="dtapWall(\''+w.id+'\')" style="color:'+(liked?"#e0245e":"var(--text)")+'"><svg width="26" height="26" viewBox="0 0 24 24" fill="'+(liked?"#e0245e":"none")+'" stroke="'+(liked?"#e0245e":"currentColor")+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button>'
+    +'<button class="action-btn" onclick="openComments(\''+w.id+'\',\'guestWall\')" style="color:var(--text)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button>'
+    +'<button class="action-btn" onclick="shareAlbum()" style="color:var(--text)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>'
+    +'</div>'
+    +(lk?'<div class="like-count"><span>'+lk.toLocaleString()+'</span> '+(lk===1?"like":"likes")+'</div>':"")
+    +(w.message?'<div class="post-caption"><strong>'+es(w.guestName||"Guest")+'</strong> '+es(w.message)+'</div>':"")
+    +(cc?'<button class="view-cmts-btn" onclick="openComments(\''+w.id+'\',\'guestWall\')">View all '+cc+' comment'+(cc===1?"":"s")+'</button>':"")
+    +'<div class="post-time-label">'+ta(tsMs)+'</div>'
+    +'</div></div>';
+}
+
+function dtapWall(id){
+  if(!USER_LIKES[id]) tgWallLike(id);
+  var el = $id("whrt-"+id);
+  if(el){el.innerHTML='<div class="heart-anim">❤️</div>';setTimeout(function(){if(el)el.innerHTML="";},900);}
+}
+
+function tgWallLike(id){
+  var wasLiked = USER_LIKES[id];
+  USER_LIKES[id] = !wasLiked;
+  LIKES[id] = Math.max(0,(LIKES[id]||0)+(wasLiked?-1:1));
+  db.collection("likes").doc(id).set({count:firebase.firestore.FieldValue.increment(wasLiked?-1:1)},{merge:true}).catch(function(){});
+  if(wasLiked){db.collection("ul_"+userId).doc(id).delete().catch(function(){});}
+  else{db.collection("ul_"+userId).doc(id).set({liked:true}).catch(function(){});}
+  renderWall();
+}
+
+function openWallUpload(){
+  wallFile = null;
+  wallPreUpload = { url:"", done:false, error:false };
+  var h = buildSheet("Share Your Memory",
+    '<div class="form-group"><label class="form-label">Your Name</label>'
+    +'<input class="form-input" id="wname" placeholder="Enter your name"/></div>'
+    +'<div class="form-group"><label class="form-label">Message (optional)</label>'
+    +'<textarea class="form-input" id="wmsg" rows="2" placeholder="Write a sweet message..."></textarea></div>'
+    +'<div class="form-group"><label class="form-label">Photo</label>'
+    +'<div class="upload-zone" id="wup-zone" onclick="$id(\'wup-file\').click()">'
+    +'<input type="file" id="wup-file" accept="image/*" style="display:none" onchange="previewWall(this)"/>'
+    +'<div class="upload-zone-icon">📸</div>'
+    +'<div class="upload-zone-text" id="wup-zone-txt"><strong>Tap to choose photo</strong><br>JPG, PNG, HEIC supported</div>'
+    +'</div>'
+    +'<div class="preview-grid" id="wup-preview"></div>'
+    +'<div class="progress-bar-wrap" id="wup-prog-wrap"><div class="progress-bar-fill" id="wup-prog-fill"></div></div>'
+    +'</div>'
+    +'<button class="btn-primary" onclick="submitWall()" id="wup-btn">Share Memory</button>'
+  );
+  showModal(h);
+}
+
+var wallFile = null;
+var wallPreUpload = { url:"", done:false, error:false };
+
+function previewWall(input){
+  wallFile = input.files[0];
+  if(!wallFile) return;
+  wallPreUpload = { url:"", done:false, error:false };
+  // Show local preview
+  var reader = new FileReader();
+  reader.onload = function(e){
+    $id("wup-preview").innerHTML = '<img class="preview-img" src="'+e.target.result+'"/>';
+  };
+  reader.readAsDataURL(wallFile);
+  // Show progress & start background upload
+  var wrap = $id("wup-prog-wrap"); if(wrap) wrap.style.display = "block";
+  var txt = $id("wup-zone-txt"); if(txt) txt.innerHTML = "<strong>Photo selected</strong><br>Uploading in background...";
+  cloudUpload(wallFile, false, function(pct){
+    var fill = $id("wup-prog-fill"); if(fill) fill.style.width = pct + "%";
+  }).then(function(res){
+    wallPreUpload.url = res.secure_url;
+    wallPreUpload.done = true;
+    var fill = $id("wup-prog-fill"); if(fill) fill.style.width = "100%";
+    var txt2 = $id("wup-zone-txt"); if(txt2) txt2.innerHTML = "<strong>✓ Ready to share</strong>";
+  }).catch(function(){
+    wallPreUpload.error = true;
+    var txt2 = $id("wup-zone-txt"); if(txt2) txt2.innerHTML = "<strong style='color:var(--error)'>Upload failed</strong><br>Tap to try again";
+    var fill = $id("wup-prog-fill"); if(fill){ fill.style.width="100%"; fill.style.background="var(--error)"; }
+  });
+}
+
+function submitWall(){
+  var name = ($id("wname")||{}).value || "Guest";
+  var msg = ($id("wmsg")||{}).value || "";
+  if(!wallFile){ toast("Please choose a photo"); return; }
+  var btn = $id("wup-btn");
+  if(wallPreUpload.error){ toast("Upload failed. Please reselect the photo."); return; }
+  if(!wallPreUpload.done){
+    if(btn){ btn.disabled=true; btn.textContent="Uploading..."; }
+    var poll = setInterval(function(){
+      if(wallPreUpload.done){ clearInterval(poll); doSaveWall(name, msg, btn); }
+      if(wallPreUpload.error){ clearInterval(poll); toast("Upload failed."); if(btn){btn.disabled=false;btn.textContent="Share Memory";} }
+    }, 300);
+    return;
+  }
+  doSaveWall(name, msg, btn);
+}
+
+function doSaveWall(name, msg, btn){
+  if(btn){ btn.disabled=true; btn.textContent="Sharing..."; }
+  db.collection("guestWall").add({
+    guestName: name, message: msg, imageUrl: wallPreUpload.url,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    closeModal(); wallFile=null; toast("Shared! 🌸"); fetchWall();
+  }).catch(function(){
+    toast("Failed. Try again."); if(btn){ btn.disabled=false; btn.textContent="Share Memory"; }
+  });
+}
+
+// ─── PROFILE ─────────────────────────────────────────────────
+function updateProfileUI(){
+  if(PROFILE.avatarUrl){
+    $id("prof-av").src = PROFILE.avatarUrl;
+    $id("top-av").src = PROFILE.avatarUrl;
+  }
+  if(PROFILE.bio) $id("prof-bio").textContent = PROFILE.bio;
+  if(PROFILE.photographer) $id("prof-photog").textContent = "📷 "+PROFILE.photographer;
+  if(PROFILE.date||PROFILE.location) $id("prof-date-loc").textContent = (PROFILE.date||COUPLE.date)+" · "+(PROFILE.location||COUPLE.location);
+}
+
+function updateTB(){
+  var av = PROFILE.avatarUrl||"";
+  var el = $id("top-av"); if(el)el.src=av;
+}
+
+function renderProfile(){
+  updateProfileUI();
+  $id("edit-prof-btn").style.display = isAdmin?"block":"none";
+  renderProfileGrid();
+  updateStats();
+}
+
+function renderProfileGrid(){
+  var imgs = [];
+  POSTS.forEach(function(p){(p.images||[]).forEach(function(img){if(imgs.length<18)imgs.push(img);});});
+  $id("pgrid").innerHTML = imgs.length
+    ? imgs.map(function(s){return'<div class="pgrid-item"><img src="'+es(s)+'" loading="lazy" onerror="this.style.display=\'none\'"/></div>';}).join("")
+    : '<div class="pgrid-empty"><div style="font-size:40px;margin-bottom:10px">🖼️</div><div style="font-style:italic">Photos will appear here</div></div>';
+}
+
+function updateStats(){
+  var tl = Object.values(LIKES).reduce(function(a,b){return a+b;},0);
+  var tc = Object.values(COMMENTS_COUNT).reduce(function(a,b){return a+b;},0);
+  $id("sp").textContent = POSTS.length;
+  $id("sl").textContent = tl;
+  $id("sc").textContent = tc;
+  $id("sw").textContent = WALL.length;
+}
+
+function adminTapAvatar(){
+  if(!isAdmin)return;
+  var input = document.createElement("input");
+  input.type="file";input.accept="image/*";
+  input.onchange = function(){
+    var file = input.files[0]; if(!file)return;
+    toast("Uploading avatar...");
+    cloudUpload(file, false, null).then(function(res){
+      var url = res.secure_url;
+      PROFILE.avatarUrl = url;
+      return db.collection("config").doc("profile").set({avatarUrl:url},{merge:true});
+    }).then(function(){updateProfileUI();toast("Avatar updated ✓");})
+    .catch(function(){toast("Upload failed");});
+  };
+  input.click();
+}
+
+// ─── COMMENTS ────────────────────────────────────────────────
+var cmtListener = null;
+function openComments(postId, collection){
+  var h = buildSheet("Comments",
+    '<div class="clist" id="clist"><div class="cempty">Loading...</div></div>'
+    +'<div class="c-input-area">'
+    +'<input class="c-name-input" id="cn" placeholder="Your name (optional)"/>'
+    +'<div class="c-input-row">'
+    +'<input class="c-text-input" id="ct" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')addComment(\''+postId+'\',\''+collection+'\')"/>'
+    +'<button class="c-send-btn" onclick="addComment(\''+postId+'\',\''+collection+'\')">Post</button>'
+    +'</div></div>'
+  );
+  showModal(h);
+  // Real-time listener for comments
+  if(cmtListener)cmtListener();
+  cmtListener = db.collection(collection).doc(postId).collection("comments")
+    .orderBy("createdAt","asc").onSnapshot(function(snap){
+      var cm = [];
+      snap.forEach(function(d){cm.push({id:d.id,...d.data()});});
+      COMMENTS_COUNT[postId] = cm.length;
+      updateStats();
+      var cl = $id("clist");
+      if(!cl)return;
+      if(!cm.length){cl.innerHTML='<div class="cempty">✨ Be the first to comment!</div>';return;}
+      cl.innerHTML = cm.map(function(c){
+        var ts = c.createdAt && c.createdAt.toMillis ? c.createdAt.toMillis() : Date.now();
+        return '<div class="citem">'
+          +'<div class="cavatar">'+es((c.name||"G")[0].toUpperCase())+'</div>'
+          +'<div><div class="ctext"><strong>'+es(c.name||"Guest")+'</strong> '+es(c.text||"")+'</div>'
+          +'<div class="ctime">'+ta(ts)+'</div></div>'
+          +(isAdmin?'<button style="margin-left:auto;background:none;border:none;font-size:14px;color:var(--error);cursor:pointer" onclick="deleteComment(\''+collection+'\',\''+postId+'\',\''+c.id+'\')">×</button>':"")
+          +'</div>';
+      }).join("");
+      cl.scrollTop = cl.scrollHeight;
+    }, function(e){console.warn("cmt listener",e);});
+}
+
+function addComment(postId, collection){
+  var nm = ($id("cn")||{}).value||"Guest";
+  var tx = ($id("ct")||{}).value||"";
+  if(!tx.trim())return;
+  db.collection(collection).doc(postId).collection("comments").add({
+    name:nm.trim(), text:tx.trim(),
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    var ct=$id("ct");if(ct)ct.value="";
+  }).catch(function(){toast("Could not post comment");});
+}
+
+function deleteComment(collection, postId, cId){
+  db.collection(collection).doc(postId).collection("comments").doc(cId).delete()
+    .then(function(){toast("Deleted");}).catch(function(){});
+}
+
+// ─── ADMIN ───────────────────────────────────────────────────
+function showAdminLogin(){
+  if(isAdmin){
+    var h = buildSheet("Admin Menu",
+      '<div style="text-align:center;margin-bottom:16px"><div class="admin-badge" style="display:inline-flex">👑 Logged in as Admin</div></div>'
+      +'<button class="btn-secondary" onclick="openStoryUpload();closeModal()">📷 Upload Story</button>'
+      +'<button class="btn-secondary" onclick="openEditProfile();closeModal()" style="margin-top:8px">✏️ Edit Profile</button>'
+      +'<button class="btn-primary" style="background:rgba(192,57,43,0.1);color:var(--error);border:1px solid rgba(192,57,43,0.3)" onclick="adminLogout()">Log Out</button>'
+    );
+    showModal(h);
+    return;
+  }
+  var h = buildSheet("Admin Login",
+    '<div style="text-align:center;margin-bottom:20px">'
+    +'<div style="font-size:32px;margin-bottom:8px">🔑</div>'
+    +'<div style="font-family:Cormorant Garamond,serif;font-style:italic;font-size:16px;color:var(--text-muted)">Enter admin password</div>'
+    +'</div>'
+    +'<div class="form-group"><input class="form-input" type="password" id="apw" placeholder="Password" onkeydown="if(event.key===\'Enter\')doAdminLogin()"/></div>'
+    +'<button class="btn-primary" onclick="doAdminLogin()">Login</button>'
+  );
+  showModal(h);
+  setTimeout(function(){var el=$id("apw");if(el)el.focus();},300);
+}
+
+function doAdminLogin(){
+  var pw = ($id("apw")||{}).value||"";
+  if(pw===ADMIN_PW){
+    isAdmin=true;sessionStorage.setItem("wa_admin","1");
+    closeModal();toast("Welcome back! 👑");
+    goTo(currentPage);
+  } else {
+    toast("Wrong password");
+    var el=$id("apw");if(el){el.value="";el.style.borderColor="var(--error)";setTimeout(function(){el.style.borderColor="";},1500);}
+  }
+}
+
+function adminLogout(){
+  isAdmin=false;sessionStorage.removeItem("wa_admin");
+  closeModal();toast("Logged out");
+  $id("fab").style.display="none";
+  $id("edit-prof-btn").style.display="none";
+  renderFeed();renderReels();renderProfile();
+}
+
+// ─── ADMIN UPLOAD ─────────────────────────────────────────────
+function openAdminUpload(){
+  if(currentPage==="reels")openReelUpload();
+  else openPostUpload();
+}
+
+var postFiles = [];
+var postPreUpload = { urls: [], done: false, error: false, progress: 0, total: 0 };
+
+function openPostUpload(){
+  postFiles = [];
+  postPreUpload = { urls: [], done: false, error: false, progress: 0, total: 0 };
+  var h = buildSheet("Upload Photos",
+    '<div class="form-group"><label class="form-label">Caption</label>'
+    +'<textarea class="form-input" id="pcap" rows="2" placeholder="Write a caption..."></textarea></div>'
+    +'<div class="form-group"><label class="form-label">Photos (up to 5)</label>'
+    +'<div class="upload-zone" onclick="$id(\'pup-file\').click()">'
+    +'<input type="file" id="pup-file" accept="image/*" multiple style="display:none" onchange="previewPosts(this)"/>'
+    +'<div class="upload-zone-icon">🖼️</div>'
+    +'<div class="upload-zone-text" id="pup-zone-txt"><strong>Tap to choose photos</strong><br>Multiple selection supported</div>'
+    +'</div>'
+    +'<div class="preview-grid" id="pup-preview"></div>'
+    +'<div class="progress-bar-wrap" id="pup-prog-wrap"><div class="progress-bar-fill" id="pup-prog-fill"></div></div>'
+    +'</div>'
+    +'<button class="btn-primary" onclick="submitPost()" id="pup-btn">Share Photos</button>'
+  );
+  showModal(h);
+}
+
+function previewPosts(input){
+  postFiles = Array.from(input.files).slice(0,5);
+  postPreUpload = { urls: [], done: false, error: false, progress: 0, total: postFiles.length };
+  var prev = $id("pup-preview");
+  if(!prev) return;
+  prev.innerHTML = "";
+  postFiles.forEach(function(f){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = document.createElement("img");
+      img.className = "preview-img"; img.src = e.target.result;
+      prev.appendChild(img);
+    };
+    reader.readAsDataURL(f);
+  });
+  // Show progress bar immediately
+  var wrap = $id("pup-prog-wrap"); if(wrap) wrap.style.display = "block";
+  var txt = $id("pup-zone-txt"); if(txt) txt.innerHTML = "<strong>"+postFiles.length+" photo"+(postFiles.length>1?"s":"")+" selected</strong><br>Uploading in background...";
+  // Start background uploads
+  bgUploadPosts(0);
+}
+
+function bgUploadPosts(i){
+  if(i >= postFiles.length){
+    postPreUpload.done = true;
+    var fill = $id("pup-prog-fill"); if(fill) fill.style.width = "100%";
+    var txt = $id("pup-zone-txt"); if(txt) txt.innerHTML = "<strong>✓ Ready to post</strong><br>"+postFiles.length+" photo"+(postFiles.length>1?"s":"")+" uploaded";
+    return;
+  }
+  cloudUpload(postFiles[i], false, function(pct){
+    var overall = ((i * 100) + pct) / postFiles.length;
+    var fill = $id("pup-prog-fill"); if(fill) fill.style.width = overall + "%";
+  }).then(function(res){
+    postPreUpload.urls.push(res.secure_url);
+    bgUploadPosts(i + 1);
+  }).catch(function(){
+    postPreUpload.error = true;
+    var txt = $id("pup-zone-txt"); if(txt) txt.innerHTML = "<strong style='color:var(--error)'>Upload failed</strong><br>Tap to try again";
+    var fill = $id("pup-prog-fill"); if(fill){ fill.style.width="100%"; fill.style.background="var(--error)"; }
+  });
+}
+
+function submitPost(){
+  if(!postFiles.length){ toast("Choose at least 1 photo"); return; }
+  var cap = ($id("pcap")||{}).value || "";
+  var btn = $id("pup-btn");
+  if(postPreUpload.error){
+    // Retry upload first
+    if(btn){ btn.disabled=true; btn.textContent="Retrying upload..."; }
+    postPreUpload = { urls:[], done:false, error:false, progress:0, total:postFiles.length };
+    var fill=$id("pup-prog-fill"); if(fill){fill.style.width="0";fill.style.background="";}
+    bgUploadPosts(0);
+    // Poll until done
+    var poll = setInterval(function(){
+      if(postPreUpload.done){ clearInterval(poll); doSavePost(cap, btn); }
+      if(postPreUpload.error){ clearInterval(poll); if(btn){btn.disabled=false;btn.textContent="Share Photos";} }
+    }, 400);
+    return;
+  }
+  if(!postPreUpload.done){
+    // Still uploading — wait for it
+    if(btn){ btn.disabled=true; btn.textContent="Uploading..."; }
+    var poll = setInterval(function(){
+      if(postPreUpload.done){ clearInterval(poll); doSavePost(cap, btn); }
+      if(postPreUpload.error){ clearInterval(poll); toast("Upload failed. Try again."); if(btn){btn.disabled=false;btn.textContent="Share Photos";} }
+    }, 300);
+    return;
+  }
+  doSavePost(cap, btn);
+}
+
+function doSavePost(cap, btn){
+  if(btn){ btn.disabled=true; btn.textContent="Posting..."; }
+  db.collection("posts").add({
+    images: postPreUpload.urls, caption: cap,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    closeModal(); postFiles=[]; toast("Posted! 🎉"); fetchPosts();
+  }).catch(function(){
+    toast("Failed to save"); if(btn){ btn.disabled=false; btn.textContent="Share Photos"; }
+  });
+}
+
+var reelFile = null;
+var reelPreUpload = { videoUrl:"", thumbUrl:"", done:false, error:false };
+
+function openReelUpload(){
+  reelFile = null;
+  reelPreUpload = { videoUrl:"", thumbUrl:"", done:false, error:false };
+  var h = buildSheet("Upload Reel",
+    '<div class="form-group"><label class="form-label">Caption</label>'
+    +'<textarea class="form-input" id="rcap" rows="2" placeholder="Write a caption..."></textarea></div>'
+    +'<div class="form-group"><label class="form-label">Song Name (optional)</label>'
+    +'<input class="form-input" id="rsong" placeholder="e.g. Oru Adaar Love"/></div>'
+    +'<div class="form-group"><label class="form-label">Video</label>'
+    +'<div class="upload-zone" onclick="$id(\'rup-file\').click()">'
+    +'<input type="file" id="rup-file" accept="video/*" style="display:none" onchange="previewReel(this)"/>'
+    +'<div class="upload-zone-icon" id="rup-icon">🎬</div>'
+    +'<div class="upload-zone-text" id="rup-txt"><strong>Tap to choose video</strong><br>MP4, MOV supported</div>'
+    +'</div>'
+    +'<div id="rup-preview" style="margin-top:10px"></div>'
+    +'<div class="progress-bar-wrap" id="rup-prog-wrap"><div class="progress-bar-fill" id="rup-prog-fill"></div></div>'
+    +'</div>'
+    +'<button class="btn-primary" onclick="submitReel()" id="rup-btn">Upload Reel</button>'
+  );
+  showModal(h);
+}
+
+function previewReel(input){
+  reelFile = input.files[0]; if(!reelFile) return;
+  reelPreUpload = { videoUrl:"", thumbUrl:"", done:false, error:false };
+  $id("rup-icon").textContent = "🎬";
+  $id("rup-txt").innerHTML = "<strong>"+es(reelFile.name)+"</strong><br>Uploading in background...";
+  var wrap = $id("rup-prog-wrap"); if(wrap) wrap.style.display = "block";
+  // Background upload: thumb + video simultaneously
+  var thumbDone = false, videoDone = false, thumbUrl = "", videoUrl = "";
+  function checkBothDone(){
+    if(thumbDone && videoDone){
+      reelPreUpload.videoUrl = videoUrl;
+      reelPreUpload.thumbUrl = thumbUrl;
+      reelPreUpload.done = true;
+      var fill = $id("rup-prog-fill"); if(fill) fill.style.width = "100%";
+      $id("rup-txt").innerHTML = "<strong>✓ Ready to post</strong><br>"+es(reelFile.name);
+    }
+  }
+  // Upload video in background
+  cloudUpload(reelFile, true, function(pct){
+    var fill = $id("rup-prog-fill"); if(fill) fill.style.width = (pct * 0.85) + "%";
+  }).then(function(res){
+    videoUrl = res.secure_url; videoDone = true; checkBothDone();
+  }).catch(function(){
+    reelPreUpload.error = true;
+    $id("rup-txt").innerHTML = "<strong style='color:var(--error)'>Upload failed</strong><br>Tap to try again";
+    var fill = $id("rup-prog-fill"); if(fill){ fill.style.width="100%"; fill.style.background="var(--error)"; }
+  });
+  // Extract and upload thumbnail in background
+  extractVideoThumb(reelFile).then(function(blob){
+    if(!blob){ thumbDone = true; checkBothDone(); return; }
+    return cloudUpload(blob, false, null).then(function(tRes){
+      thumbUrl = tRes.secure_url; thumbDone = true; checkBothDone();
+    }).catch(function(){ thumbDone = true; checkBothDone(); });
+  }).catch(function(){ thumbDone = true; checkBothDone(); });
+}
+
+function submitReel(){
+  if(!reelFile){ toast("Choose a video"); return; }
+  var cap = ($id("rcap")||{}).value || "";
+  var song = ($id("rsong")||{}).value || "";
+  var btn = $id("rup-btn");
+  if(reelPreUpload.error){
+    toast("Upload failed. Please reselect the video."); return;
+  }
+  if(!reelPreUpload.done){
+    if(btn){ btn.disabled=true; btn.textContent="Uploading..."; }
+    var poll = setInterval(function(){
+      if(reelPreUpload.done){ clearInterval(poll); doSaveReel(cap, song, btn); }
+      if(reelPreUpload.error){ clearInterval(poll); toast("Upload failed."); if(btn){btn.disabled=false;btn.textContent="Upload Reel";} }
+    }, 300);
+    return;
+  }
+  doSaveReel(cap, song, btn);
+}
+
+function doSaveReel(cap, song, btn){
+  if(btn){ btn.disabled=true; btn.textContent="Posting..."; }
+  db.collection("reels").add({
+    videoUrl: reelPreUpload.videoUrl, thumbUrl: reelPreUpload.thumbUrl,
+    caption: cap, song: song,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(){
+    closeModal(); reelFile=null; toast("Reel uploaded! 🎬"); fetchReels();
+  }).catch(function(){
+    toast("Failed to save"); if(btn){ btn.disabled=false; btn.textContent="Upload Reel"; }
+  });
+}
+
+// ─── STORY UPLOAD ────────────────────────────────────────────
+var storyFile=null;
+function openStoryUpload(){
+  storyFile=null;
+  var h=buildSheet("Add Story",
+    '<div class="form-group"><label class="form-label">Label</label>'
+    +'<input class="form-input" id="slabel" placeholder="e.g. Ceremony, Reception..."/></div>'
+    +'<div class="form-group"><label class="form-label">Photo</label>'
+    +'<div class="upload-zone" onclick="$id(\'sup-file\').click()">'
+    +'<input type="file" id="sup-file" accept="image/*" style="display:none" onchange="previewStory(this)"/>'
+    +'<div class="upload-zone-icon">📖</div>'
+    +'<div class="upload-zone-text"><strong>Tap to choose photo</strong></div>'
+    +'</div><div class="preview-grid" id="sup-preview"></div>'
+    +'<div class="progress-bar-wrap" id="sup-prog-wrap"><div class="progress-bar-fill" id="sup-prog-fill"></div></div>'
+    +'</div>'
+    +'<button class="btn-primary" onclick="submitStory()">Add Story</button>'
+  );
+  showModal(h);
+}
+function previewStory(input){
+  storyFile=input.files[0];if(!storyFile)return;
+  var r=new FileReader();r.onload=function(e){$id("sup-preview").innerHTML='<img class="preview-img" src="'+e.target.result+'"/>';};r.readAsDataURL(storyFile);
+}
+function submitStory(){
+  var label=($id("slabel")||{}).value||"Story";
+  if(!storyFile){toast("Choose a photo");return;}
+  var btn=document.querySelector(".btn-primary");if(btn){btn.disabled=true;btn.textContent="Uploading...";}
+  var wrap=$id("sup-prog-wrap");if(wrap)wrap.style.display="block";
+  cloudUpload(storyFile,false,function(pct){
+    var fill=$id("sup-prog-fill");if(fill)fill.style.width=pct+"%";
+  })
+    .then(function(res){return db.collection("stories").add({label:label,imageUrl:res.secure_url,createdAt:firebase.firestore.FieldValue.serverTimestamp()});})
+    .then(function(){closeModal();storyFile=null;toast("Story added! ✨");fetchStories();})
+    .catch(function(){toast("Upload failed");if(btn){btn.disabled=false;btn.textContent="Add Story";}});
+}
+
+// ─── EDIT PROFILE ────────────────────────────────────────────
+function openEditProfile(){
+  var h=buildSheet("Edit Profile",
+    '<div class="form-group"><label class="form-label">Bio</label>'
+    +'<textarea class="form-input" id="ebio" rows="3" placeholder="Wedding bio...">'+es(PROFILE.bio||"")+'</textarea></div>'
+    +'<div class="form-group"><label class="form-label">Date</label>'
+    +'<input class="form-input" id="edate" value="'+es(PROFILE.date||COUPLE.date)+'"/></div>'
+    +'<div class="form-group"><label class="form-label">Location</label>'
+    +'<input class="form-input" id="eloc" value="'+es(PROFILE.location||COUPLE.location)+'"/></div>'
+    +'<div class="form-group"><label class="form-label">Photographer</label>'
+    +'<input class="form-input" id="ephoto" value="'+es(PROFILE.photographer||COUPLE.photographer)+'"/></div>'
+    +'<button class="btn-primary" onclick="saveProfile()">Save Changes</button>'
+  );
+  showModal(h);
+}
+function saveProfile(){
+  var data={
+    bio:($id("ebio")||{}).value||"",
+    date:($id("edate")||{}).value||COUPLE.date,
+    location:($id("eloc")||{}).value||COUPLE.location,
+    photographer:($id("ephoto")||{}).value||COUPLE.photographer
+  };
+  if(PROFILE.avatarUrl)data.avatarUrl=PROFILE.avatarUrl;
+  db.collection("config").doc("profile").set(data,{merge:true})
+    .then(function(){PROFILE={...PROFILE,...data};updateProfileUI();closeModal();toast("Profile updated ✓");})
+    .catch(function(){toast("Save failed");});
+}
+
+// ─── DELETE ───────────────────────────────────────────────────
+function deletePost(id){
+  if(!confirm("Delete this post?"))return;
+  db.collection("posts").doc(id).delete().then(function(){toast("Deleted");fetchPosts();}).catch(function(){toast("Failed");});
+}
+function deleteReel(id){
+  if(!confirm("Delete this reel?"))return;
+  db.collection("reels").doc(id).delete().then(function(){toast("Deleted");fetchReels();}).catch(function(){toast("Failed");});
+}
+function deleteWall(id){
+  if(!confirm("Delete this wall post?"))return;
+  db.collection("guestWall").doc(id).delete().then(function(){toast("Deleted");fetchWall();}).catch(function(){toast("Failed");});
+}
+
+// ─── SHARE ────────────────────────────────────────────────────
+function shareAlbum(){
+  var data={url:window.location.href,title:"Murshid & Shibila — Wedding Album"};
+  if(navigator.share){navigator.share(data);}
+  else{try{navigator.clipboard.writeText(window.location.href);}catch(e){}toast("Link copied! Share on WhatsApp 📱");}
+}
+
+// ─── MODAL HELPERS ────────────────────────────────────────────
+function buildSheet(title, body){
+  return '<div class="overlay" id="overlay-bg" onclick="overlayBgClose(event)">'
+    +'<div class="sheet">'
+    +'<div class="sheet-handle"><div class="sheet-handle-bar"></div></div>'
+    +'<div class="sheet-header">'
+    +'<span class="sheet-header-title">'+title+'</span>'
+    +'<button class="sheet-close" onclick="closeModal()">✕</button>'
+    +'</div>'
+    +'<div class="sheet-body">'+body+'</div>'
+    +'</div></div>';
+}
+function showModal(h){
+  if(cmtListener&&!h.includes("clist")){cmtListener();cmtListener=null;}
+  $id("modal-root").innerHTML=h;
+}
+function closeModal(){
+  if(cmtListener){cmtListener();cmtListener=null;}
+  $id("modal-root").innerHTML="";
+}
+function overlayBgClose(e){if(e.target.id==="overlay-bg")closeModal();}
+
+// ─── BOOT ─────────────────────────────────────────────────────
+function boot(){
+  // Load independently
+  fetchPosts();
+  fetchReels();
+  fetchStories();
+  fetchWall();
+  loadProfile();
+  // Load likes after a delay
+  setTimeout(loadLikes, 1500);
+  // Show app
+  setTimeout(function(){
+    $id("loading-screen").style.display="none";
+    $id("app").style.display="block";
+    if(isAdmin){$id("fab").style.display="flex";}
+    renderFeed();
+    renderProfile();
+  }, 1200);
+}
+
+boot();
+</script>
+</body>
+</html>
